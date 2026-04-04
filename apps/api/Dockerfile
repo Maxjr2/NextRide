@@ -18,6 +18,8 @@ COPY apps/api apps/api
 RUN npm run build --workspace=packages/shared
 
 # Generate Prisma client
+ARG DATABASE_URL
+ENV DATABASE_URL=${DATABASE_URL}
 RUN npm run db:generate --workspace=apps/api
 
 # Build API
@@ -52,5 +54,8 @@ RUN chown -R appuser:appgroup /app/packages/shared/dist /app/apps/api/dist /app/
 USER appuser
 
 EXPOSE 3001
+
+HEALTHCHECK --interval=30s --timeout=5s --retries=3 --start-period=10s \
+  CMD wget -qO- http://localhost:3001/health || exit 1
 
 CMD ["node", "apps/api/dist/index.js"]

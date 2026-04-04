@@ -43,8 +43,8 @@ describe('Users routes', () => {
       .send({ notificationChannels: ['telegram'] }); // invalid
 
     expect(res.status).toBe(400);
-    expect(typeof res.body.error?.code).toBe('string');
-    expect(typeof res.body.error?.message).toBe('string');
+    expect(res.body.error?.code).toBe('VALIDATION_ERROR');
+    expect(res.body.error?.message).toBe('Request validation failed');
   });
 
   it('GET /users returns 403 for non-coordinators', async () => {
