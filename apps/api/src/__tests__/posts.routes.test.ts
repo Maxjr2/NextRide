@@ -51,7 +51,6 @@ describe('POST /api/v1/posts', () => {
       .set('Authorization', `Bearer ${tokens.pilot}`)
       .send({
         type: 'offer',
-        vehicleId: 'veh-lotte',
         neighborhood: 'Unterbilk',
         passengerCount: 2,
       });

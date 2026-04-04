@@ -47,7 +47,7 @@ import {
 } from './data';
 
 // Deep-clone seed data so tests don't pollute each other
-const clone = <T>(arr: T[]): T[] => JSON.parse(JSON.stringify(arr));
+const clone = <T>(arr: T[]): T[] => structuredClone(arr);
 
 // ─── Shared store ─────────────────────────────────────────────────────────────
 

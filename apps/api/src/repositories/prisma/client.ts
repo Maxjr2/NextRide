@@ -10,16 +10,19 @@ const prisma = new PrismaClient({
 });
 
 if (process.env.LOG_LEVEL === 'debug') {
-  prisma.$on('query', (e) => {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  prisma.$on('query', (e: any) => {
     logger.debug({ query: e.query, duration: e.duration }, 'prisma query');
   });
 }
 
-prisma.$on('error', (e) => {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+prisma.$on('error', (e: any) => {
   logger.error(e, 'prisma error');
 });
 
-prisma.$on('warn', (e) => {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+prisma.$on('warn', (e: any) => {
   logger.warn(e, 'prisma warning');
 });
 

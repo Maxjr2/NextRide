@@ -8,7 +8,7 @@ async function setupProposedMatch(app: unknown) {
   const offerRes = await request(appUnderTest)
     .post('/api/v1/posts')
     .set('Authorization', `Bearer ${tokens.pilot}`)
-    .send({ type: 'offer', vehicleId: 'veh-elle', neighborhood: 'Bilk', passengerCount: 1 });
+    .send({ type: 'offer', neighborhood: 'Bilk', passengerCount: 1 });
 
   // Create fresh request
   const reqRes = await request(appUnderTest)
@@ -51,7 +51,7 @@ describe('Matches routes', () => {
     const offerRes = await request(app)
       .post('/api/v1/posts')
       .set('Authorization', `Bearer ${tokens.pilot}`)
-      .send({ type: 'offer', vehicleId: 'veh-elle', neighborhood: 'Bilk', passengerCount: 1 });
+      .send({ type: 'offer', neighborhood: 'Bilk', passengerCount: 1 });
     const reqRes = await request(app)
       .post('/api/v1/posts')
       .set('Authorization', `Bearer ${tokens.rider}`)

@@ -21,7 +21,7 @@ import type { Container } from '../config/container';
 import type { WsEmitter } from '../websocket';
 
 /** No-op WS emitter for tests */
-const noopWs: WsEmitter = { emit: () => {} };
+const noopWs: WsEmitter = { emit: () => {}, wss: undefined as unknown as import('ws').WebSocketServer };
 
 export function buildTestContainer(): { container: Container; store: MockStore } {
   const store = new MockStore();
