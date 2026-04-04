@@ -9,9 +9,9 @@ services:
     image: postgres:16-alpine
     restart: unless-stopped
     environment:
-      POSTGRES_DB: nextride
-      POSTGRES_USER: nextride
-      POSTGRES_PASSWORD: nextride
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
     volumes:
       - db_data:/var/lib/postgresql/data
     ports:
@@ -60,8 +60,9 @@ services:
       NODE_ENV: production
       PORT: 3001
       MOCK_MODE: "false"
-      DATABASE_URL: postgresql://nextride:nextride@db:5432/nextride
+      DATABASE_URL: postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB}
       KEYCLOAK_ISSUER: http://keycloak:8080/realms/nextride
+      KEYCLOAK_JWKS_URI: http://keycloak:8080/realms/nextride/protocol/openid-connect/certs
       KEYCLOAK_AUDIENCE: nextride-api
       CORS_ORIGIN: http://localhost:5173
     ports:

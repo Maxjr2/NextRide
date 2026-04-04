@@ -10,16 +10,16 @@ const prisma = new PrismaClient({
 });
 
 if (process.env.LOG_LEVEL === 'debug') {
-  prisma.$on('query', (e) => {
+  prisma.$on('query', (e: any) => {
     logger.debug({ query: e.query, duration: e.duration }, 'prisma query');
   });
 }
 
-prisma.$on('error', (e) => {
+prisma.$on('error', (e: any) => {
   logger.error(e, 'prisma error');
 });
 
-prisma.$on('warn', (e) => {
+prisma.$on('warn', (e: any) => {
   logger.warn(e, 'prisma warning');
 });
 
