@@ -47,6 +47,8 @@ services:
     build:
       context: .
       dockerfile: apps/api/Dockerfile
+      args:
+        DATABASE_URL: postgresql://localhost:5432/placeholder
     restart: unless-stopped
     depends_on:
       db:

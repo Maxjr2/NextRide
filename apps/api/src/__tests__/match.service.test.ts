@@ -107,8 +107,9 @@ describe('MatchService', () => {
         'user-pilot-001',
         'pilot',
       );
-      expect((updated as any).status).toBe('proposed');
-      expect((updated as any).pilotConfirmed).toBe(true);
+      const partialMatch = updated as import('@nextride/shared').Match;
+      expect(partialMatch.status).toBe('proposed');
+      expect(partialMatch.pilotConfirmed).toBe(true);
     });
 
     it('transitions to confirmed when both sides confirm', async () => {

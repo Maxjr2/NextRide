@@ -1,5 +1,6 @@
 import type { Request, Response, NextFunction } from 'express';
 import { ZodError } from 'zod';
+import { Prisma } from '@prisma/client';
 import { logger } from '../config/logger';
 import { AppError } from './AppError';
 import type { ApiError } from '@nextride/shared';
@@ -24,6 +25,13 @@ export function errorHandler(
         message: 'Request validation failed',
         details: err.flatten(),
       },
+    } satisfies ApiError);
+    return;
+  }
+
+  if (err instanceof Prisma.PrismaClientKnownRequestError && err.code === 'P2002') {
+    res.status(409).json({
+      error: { code: 'CONFLICT', message: 'A record with the same unique constraint already exists' },
     } satisfies ApiError);
     return;
   }
