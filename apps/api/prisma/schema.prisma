@@ -163,6 +163,8 @@ model Match {
   @@index([status])
   @@index([offerId])
   @@index([requestId])
+  // Partial unique indexes for active matches are created in SQL migration:
+  // offerId/requestId must be unique when status IN ('proposed','confirmed').
 }
 
 model RideLog {

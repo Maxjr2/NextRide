@@ -1,13 +1,13 @@
 import { buildTestContainer } from './helpers';
 
 async function createOpenPair(container: ReturnType<typeof buildTestContainer>['container']) {
-  const offer = await container.services.posts.create('user-pilot-001', {
+  const offer = await container.services.posts.create('user-pilot-001', 'pilot', {
     type: 'offer',
     vehicleId: 'veh-elle',
     neighborhood: 'Bilk',
     passengerCount: 1,
   });
-  const request = await container.services.posts.create('user-rider-001', {
+  const request = await container.services.posts.create('user-rider-001', 'rider', {
     type: 'request',
     neighborhood: 'Bilk',
     passengerCount: 1,
@@ -71,7 +71,7 @@ describe('MatchService', () => {
     it('throws 409 when offer is already matched', async () => {
       const { container } = buildTestContainer();
       const { offer, request } = await createOpenPair(container);
-      const request2 = await container.services.posts.create('user-rider-001', {
+      const request2 = await container.services.posts.create('user-rider-001', 'rider', {
         type: 'request',
         neighborhood: 'Bilk',
         passengerCount: 1,
@@ -127,6 +127,10 @@ describe('MatchService', () => {
       );
 
       expect((confirmed as any).status).toBe('confirmed');
+      const updatedOffer = await container.services.posts.getById(offer.id);
+      const updatedRequest = await container.services.posts.getById(request.id);
+      expect(updatedOffer.status).toBe('confirmed');
+      expect(updatedRequest.status).toBe('confirmed');
     });
 
     it('throws 403 when a non-participant tries to confirm', async () => {
@@ -211,6 +215,10 @@ describe('MatchService', () => {
         'pilot',
       );
       expect(completed.status).toBe('completed');
+      const completedOffer = await container.services.posts.getById(offer.id);
+      const completedRequest = await container.services.posts.getById(request.id);
+      expect(completedOffer.status).toBe('completed');
+      expect(completedRequest.status).toBe('completed');
     });
 
     it('throws 409 when trying to complete a proposed (not yet confirmed) match', async () => {

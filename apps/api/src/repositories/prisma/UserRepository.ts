@@ -30,20 +30,26 @@ export class PrismaUserRepository implements IUserRepository {
     const role = deriveRole(claims.roles ?? []);
     const displayName = claims.name ?? claims.preferred_username ?? claims.email;
 
-    const row = await prisma.user.upsert({
-      where: { externalId: claims.sub },
-      create: {
-        externalId: claims.sub,
-        email: claims.email,
-        displayName,
-        role,
-        notificationChannels: ['email'],
-      },
-      update: {
-        email: claims.email,
-        displayName,
-      },
-    });
+    const existing = await prisma.user.findUnique({ where: { externalId: claims.sub } });
+
+    const row = existing
+      ? await prisma.user.update({
+          where: { externalId: claims.sub },
+          data: {
+            email: claims.email,
+            role,
+            ...(existing.displayName?.trim() ? {} : { displayName }),
+          },
+        })
+      : await prisma.user.create({
+          data: {
+            externalId: claims.sub,
+            email: claims.email,
+            displayName,
+            role,
+            notificationChannels: ['email'],
+          },
+        });
     return mapUser(row);
   }
 

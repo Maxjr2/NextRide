@@ -4,9 +4,9 @@
  */
 import type { User, Facility, Vehicle, Post, Match } from '@nextride/shared';
 
-const NOW = new Date();
-const TOMORROW = new Date(NOW.getTime() + 86_400_000);
-const DAY_AFTER = new Date(NOW.getTime() + 2 * 86_400_000);
+const NOW = (): Date => new Date();
+const TOMORROW = (): Date => new Date(Date.now() + 86_400_000);
+const DAY_AFTER = (): Date => new Date(Date.now() + 2 * 86_400_000);
 
 // ─── Facilities ───────────────────────────────────────────────────────────────
 
@@ -19,8 +19,8 @@ export const MOCK_FACILITIES: Facility[] = [
     contactEmail: 'kontakt@seniorenhaus-ampark.de',
     address: 'Parkstraße 12, 40477 Düsseldorf',
     active: true,
-    createdAt: NOW,
-    updatedAt: NOW,
+    createdAt: NOW(),
+    updatedAt: NOW(),
   },
 ];
 
@@ -37,8 +37,8 @@ export const MOCK_USERS: User[] = [
     certificationLevel: 'advanced',
     notificationChannels: ['email', 'sms'],
     active: true,
-    createdAt: NOW,
-    updatedAt: NOW,
+    createdAt: NOW(),
+    updatedAt: NOW(),
   },
   {
     id: 'user-rider-001',
@@ -48,8 +48,20 @@ export const MOCK_USERS: User[] = [
     email: 'erna.b@example.com',
     notificationChannels: ['email'],
     active: true,
-    createdAt: NOW,
-    updatedAt: NOW,
+    createdAt: NOW(),
+    updatedAt: NOW(),
+  },
+  {
+    id: 'user-pilot-002',
+    externalId: 'pilot-002',
+    role: 'pilot',
+    displayName: 'Petra L.',
+    email: 'petra.l@example.com',
+    certificationLevel: 'basic',
+    notificationChannels: ['email'],
+    active: true,
+    createdAt: NOW(),
+    updatedAt: NOW(),
   },
   {
     id: 'user-facility-001',
@@ -60,8 +72,8 @@ export const MOCK_USERS: User[] = [
     facilityId: 'fac-seniorenhaus',
     notificationChannels: ['email'],
     active: true,
-    createdAt: NOW,
-    updatedAt: NOW,
+    createdAt: NOW(),
+    updatedAt: NOW(),
   },
   {
     id: 'user-coord-001',
@@ -71,8 +83,8 @@ export const MOCK_USERS: User[] = [
     email: 'k.r@radelnohne-alter-dues.de',
     notificationChannels: ['email', 'sms'],
     active: true,
-    createdAt: NOW,
-    updatedAt: NOW,
+    createdAt: NOW(),
+    updatedAt: NOW(),
   },
 ];
 
@@ -87,8 +99,8 @@ export const MOCK_VEHICLES: Vehicle[] = [
     capacity: 2,
     certificationRequired: 'basic',
     active: true,
-    createdAt: NOW,
-    updatedAt: NOW,
+    createdAt: NOW(),
+    updatedAt: NOW(),
   },
   {
     id: 'veh-elle',
@@ -98,8 +110,8 @@ export const MOCK_VEHICLES: Vehicle[] = [
     capacity: 1,
     certificationRequired: 'advanced',
     active: true,
-    createdAt: NOW,
-    updatedAt: NOW,
+    createdAt: NOW(),
+    updatedAt: NOW(),
   },
   {
     id: 'veh-doppel',
@@ -109,8 +121,8 @@ export const MOCK_VEHICLES: Vehicle[] = [
     capacity: 2,
     certificationRequired: 'tandem',
     active: true,
-    createdAt: NOW,
-    updatedAt: NOW,
+    createdAt: NOW(),
+    updatedAt: NOW(),
   },
 ];
 
@@ -122,29 +134,29 @@ export const MOCK_POSTS: Post[] = [
     type: 'offer',
     authorId: 'user-pilot-001',
     vehicleId: 'veh-lotte',
-    date: TOMORROW,
+    date: TOMORROW(),
     timeSlot: { start: '10:00', end: '12:00' },
     neighborhood: 'Wersten',
     routeWish: 'Rheinuferpromenade gerne',
     passengerCount: 2,
     status: 'open',
-    createdAt: NOW,
-    updatedAt: NOW,
+    createdAt: NOW(),
+    updatedAt: NOW(),
   },
   {
     id: 'post-request-001',
     type: 'request',
     authorId: 'user-facility-001',
     facilityId: 'fac-seniorenhaus',
-    date: TOMORROW,
+    date: TOMORROW(),
     timeSlot: { start: '10:00', end: '13:00' },
     neighborhood: 'Wersten',
     routeWish: 'Stadtgarten oder Rhein',
     accessibilityNotes: 'Rollstuhl möglich, braucht etwas mehr Zeit beim Einsteigen',
     passengerCount: 1,
     status: 'open',
-    createdAt: NOW,
-    updatedAt: NOW,
+    createdAt: NOW(),
+    updatedAt: NOW(),
   },
   {
     id: 'post-offer-002',
@@ -155,34 +167,34 @@ export const MOCK_POSTS: Post[] = [
     routeWish: 'Egal, gerne durch den Park',
     passengerCount: 1,
     status: 'open',
-    createdAt: NOW,
-    updatedAt: NOW,
+    createdAt: NOW(),
+    updatedAt: NOW(),
   },
   {
     id: 'post-request-002',
     type: 'request',
     authorId: 'user-rider-001',
-    date: DAY_AFTER,
+    date: DAY_AFTER(),
     timeSlot: { start: '14:00', end: '16:00' },
     neighborhood: 'Bilk',
     routeWish: 'Südfriedhof oder Volksgarten',
     passengerCount: 1,
     status: 'open',
-    createdAt: NOW,
-    updatedAt: NOW,
+    createdAt: NOW(),
+    updatedAt: NOW(),
   },
   {
     id: 'post-offer-003',
     type: 'offer',
     authorId: 'user-pilot-001',
     vehicleId: 'veh-doppel',
-    date: DAY_AFTER,
+    date: DAY_AFTER(),
     timeSlot: { start: '09:00', end: '11:00' },
     neighborhood: 'Oberbilk',
     passengerCount: 2,
     status: 'matched',
-    createdAt: NOW,
-    updatedAt: NOW,
+    createdAt: NOW(),
+    updatedAt: NOW(),
   },
 ];
 

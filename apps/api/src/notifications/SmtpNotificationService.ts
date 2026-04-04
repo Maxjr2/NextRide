@@ -1,4 +1,5 @@
 import nodemailer from 'nodemailer';
+import { createHmac } from 'crypto';
 import { config } from '../config';
 import { logger } from '../config/logger';
 import type { INotificationService, RideNotificationPayload } from './INotificationService';
@@ -10,6 +11,7 @@ import type { User } from '@nextride/shared';
  */
 export class SmtpNotificationService implements INotificationService {
   private transporter: nodemailer.Transporter | null = null;
+  private readonly logHashSecret = process.env.LOG_REDACTION_SECRET ?? 'dev-log-redaction-secret';
 
   constructor() {
     if (config.smtp.host) {
@@ -53,14 +55,16 @@ export class SmtpNotificationService implements INotificationService {
   }
 
   private async send(to: string, subject: string, text: string): Promise<void> {
+    const recipientHash = createHmac('sha256', this.logHashSecret).update(to).digest('hex');
+
     if (!this.transporter) {
-      logger.info({ to, subject }, '[EMAIL STUB] Would send email');
+      logger.info({ recipientHash, subject }, '[EMAIL STUB] Would send email');
       return;
     }
     try {
       await this.transporter.sendMail({ from: config.smtp.from, to, subject, text });
     } catch (err) {
-      logger.error({ err, to, subject }, 'Failed to send email');
+      logger.error({ err, recipientHash, subject }, 'Failed to send email');
     }
   }
 

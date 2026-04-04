@@ -6,7 +6,7 @@ const config: Config = {
   rootDir: 'src',
   testMatch: ['**/__tests__/**/*.test.ts'],
   moduleNameMapper: {
-    '^@nextride/shared$': '<rootDir>/../../packages/shared/src',
+    '^@nextride/shared$': '<rootDir>/../../../packages/shared/src',
   },
   setupFiles: ['<rootDir>/__tests__/setup.ts'],
   coverageDirectory: '../coverage',
@@ -17,7 +17,7 @@ const config: Config = {
     '!**/repositories/prisma/seed.ts',
     '!index.ts',
   ],
-  coverageThresholds: {
+  coverageThreshold: {
     global: {
       lines: 70,
       functions: 70,

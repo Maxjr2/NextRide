@@ -67,7 +67,7 @@ services:
       sh -c "
         cd apps/api &&
         npx prisma migrate deploy &&
-        node dist/repositories/prisma/seed.js ;
+        node dist/repositories/prisma/seed.js &&
         node dist/index.js
       "
 

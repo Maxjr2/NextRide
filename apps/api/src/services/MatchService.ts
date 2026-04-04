@@ -44,22 +44,38 @@ export class MatchService {
     if (offer.status !== 'open') throw new AppError(409, 'OFFER_NOT_OPEN', 'Offer is not open');
     if (request.status !== 'open') throw new AppError(409, 'REQUEST_NOT_OPEN', 'Request is not open');
 
-    const match = await this.matches.create(proposedById, data);
-
-    // Mark both posts as matched
-    await Promise.all([
-      this.posts.updateStatus(data.offerId, 'matched'),
-      this.posts.updateStatus(data.requestId, 'matched'),
-    ]);
-
-    // Notify pilot and rider
-    const pilot = await this.users.findById(offer.authorId);
-    const rider = await this.users.findById(request.authorId);
-    if (pilot && rider) {
-      await this.notifications.notifyMatchProposed({ match, pilot, rider });
+    let match = await this.matches.create(proposedById, data);
+    try {
+      await Promise.all([
+        this.posts.updateStatus(data.offerId, 'matched'),
+        this.posts.updateStatus(data.requestId, 'matched'),
+      ]);
+    } catch (error) {
+      // Best-effort compensation when repositories do not support cross-entity transactions.
+      await Promise.allSettled([
+        this.matches.update(match.id, { status: 'cancelled', cancellationReason: 'Proposal rollback' }),
+        this.posts.updateStatus(data.offerId, 'open'),
+        this.posts.updateStatus(data.requestId, 'open'),
+      ]);
+      throw error;
     }
 
-    return match;
+    const canonicalMatch = await this.matches.findById(match.id);
+    if (!canonicalMatch) throw new AppError(500, 'MATCH_NOT_FOUND', 'Match disappeared after creation');
+    const canonicalOffer = await this.posts.findById(data.offerId);
+    const canonicalRequest = await this.posts.findById(data.requestId);
+    if (!canonicalOffer || !canonicalRequest) {
+      throw new AppError(500, 'POST_NOT_FOUND', 'Linked posts missing after match creation');
+    }
+
+    // Notify pilot and rider
+    const pilot = await this.users.findById(canonicalOffer.authorId);
+    const rider = await this.users.findById(canonicalRequest.authorId);
+    if (pilot && rider) {
+      await this.notifications.notifyMatchProposed({ match: canonicalMatch, pilot, rider });
+    }
+
+    return canonicalMatch;
   }
 
   /**
@@ -82,7 +98,11 @@ export class MatchService {
     const isRequestAuthor = match.request.authorId === userId;
     const isCoordinator = role === 'coordinator';
 
-    if (!isOfferAuthor && !isRequestAuthor && !isCoordinator) {
+    if (isCoordinator) {
+      throw new AppError(403, 'FORBIDDEN', 'Coordinators cannot confirm sides on behalf of participants');
+    }
+
+    if (!isOfferAuthor && !isRequestAuthor) {
       throw new AppError(403, 'FORBIDDEN', 'You are not a participant in this match');
     }
 
@@ -166,6 +186,9 @@ export class MatchService {
     if (!match) throw new AppError(404, 'MATCH_NOT_FOUND', 'Match not found');
     if (match.status !== 'confirmed') {
       throw new AppError(409, 'MATCH_NOT_CONFIRMED', 'Match must be confirmed before completing');
+    }
+    if (role === 'pilot' && userId !== match.offer.authorId) {
+      throw new AppError(403, 'FORBIDDEN', 'Only the offering pilot can complete this match');
     }
 
     const completed = await this.matches.update(matchId, { status: 'completed' });

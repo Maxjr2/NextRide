@@ -72,7 +72,7 @@ curl -X POST http://localhost:3001/api/v1/posts \
 
 ## Architecture
 
-```
+```text
 nextride/
 ├── apps/
 │   └── api/                   Node.js + Express + TypeScript backend
@@ -145,7 +145,7 @@ All endpoints require `Authorization: Bearer <token>`. See [Mock Mode](#mock-mod
 | `POST` | `/matches/:id/complete` | pilot, coordinator | Mark ride as completed |
 
 **Match status flow:**
-```
+```text
 proposed → (pilot + rider both confirm) → confirmed → completed
          → (either side cancels)        → cancelled
 ```
@@ -207,7 +207,7 @@ Event types: `post:new` · `post:updated` · `post:cancelled` · `match:proposed
 
 ### Health
 
-```
+```http
 GET /health
 → { "status": "ok", "mockMode": true, "env": "development", "timestamp": "..." }
 ```
@@ -236,7 +236,7 @@ Use any of the pre-seeded external IDs as your Bearer token:
 | `coord-001` | Klaus R. | coordinator |
 
 Role shortcuts (impersonate first user with that role):
-```
+```text
 role:pilot  |  role:rider  |  role:facility  |  role:coordinator
 ```
 

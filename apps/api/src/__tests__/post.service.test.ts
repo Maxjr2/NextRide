@@ -66,7 +66,7 @@ describe('PostService', () => {
   describe('create', () => {
     it('pilot can create an offer', async () => {
       const { container } = buildTestContainer();
-      const post = await container.services.posts.create('user-pilot-001', {
+      const post = await container.services.posts.create('user-pilot-001', 'pilot', {
         type: 'offer',
         vehicleId: 'veh-lotte',
         neighborhood: 'Unterbilk',
@@ -80,7 +80,7 @@ describe('PostService', () => {
 
     it('rider can create a request', async () => {
       const { container } = buildTestContainer();
-      const post = await container.services.posts.create('user-rider-001', {
+      const post = await container.services.posts.create('user-rider-001', 'rider', {
         type: 'request',
         neighborhood: 'Flingern',
         passengerCount: 1,
@@ -93,7 +93,7 @@ describe('PostService', () => {
     it('throws 403 when pilot tries to use a vehicle they do not own', async () => {
       const { container } = buildTestContainer();
       await expect(
-        container.services.posts.create('user-rider-001', {
+        container.services.posts.create('user-pilot-002', 'pilot', {
           type: 'offer',
           vehicleId: 'veh-lotte', // owned by user-pilot-001
           neighborhood: 'Flingern',
@@ -105,7 +105,7 @@ describe('PostService', () => {
     it('throws 400 when vehicleId does not exist', async () => {
       const { container } = buildTestContainer();
       await expect(
-        container.services.posts.create('user-pilot-001', {
+        container.services.posts.create('user-pilot-001', 'pilot', {
           type: 'offer',
           vehicleId: 'nonexistent-vehicle',
           neighborhood: 'Flingern',

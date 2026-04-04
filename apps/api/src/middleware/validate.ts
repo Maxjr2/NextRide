@@ -1,6 +1,15 @@
 import type { Request, Response, NextFunction } from 'express';
 import type { ZodSchema } from 'zod';
 
+declare global {
+  // eslint-disable-next-line @typescript-eslint/no-namespace
+  namespace Express {
+    interface Request {
+      parsedQuery?: unknown;
+    }
+  }
+}
+
 /**
  * Express middleware factory that validates req.body against a Zod schema.
  * Replaces req.body with the parsed (coerced) value on success.
@@ -15,7 +24,7 @@ export function validateBody<T>(schema: ZodSchema<T>) {
 
 /**
  * Validates req.query against a Zod schema.
- * Replaces req.query with the parsed (coerced) value on success.
+ * Stores parsed/coerced query data in req.parsedQuery (req.query is not mutated).
  */
 export function validateQuery<T>(schema: ZodSchema<T>) {
   return (req: Request, _res: Response, next: NextFunction): void => {

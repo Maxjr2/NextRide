@@ -160,17 +160,29 @@ async function handleJwtAuth(
 
   req.rawClaims = decoded;
 
+  if (typeof decoded !== 'object' || decoded === null) {
+    throw new AppError(401, 'INVALID_TOKEN', 'Token payload is invalid');
+  }
+
+  if (typeof decoded.sub !== 'string' || typeof decoded.email !== 'string') {
+    throw new AppError(401, 'INVALID_TOKEN', 'Token missing required claims');
+  }
+
   // Keycloak puts realm roles in realm_access.roles
   const realmRoles =
     (decoded.realm_access as { roles?: string[] } | undefined)?.roles ?? [];
 
   const user = await userService.upsertFromToken({
-    sub: decoded.sub as string,
-    email: decoded.email as string,
+    sub: decoded.sub,
+    email: decoded.email,
     name: decoded.name as string | undefined,
     preferred_username: decoded.preferred_username as string | undefined,
     roles: realmRoles,
   });
+
+  if (!user.active) {
+    throw new AppError(403, 'USER_INACTIVE', 'User account is inactive');
+  }
 
   req.user = user;
 }

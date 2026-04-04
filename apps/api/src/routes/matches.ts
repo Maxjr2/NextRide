@@ -8,6 +8,7 @@ import type { MatchService } from '../services/MatchService';
 import type { UserService } from '../services/UserService';
 import type { ApiResponse, ApiListResponse } from '@nextride/shared';
 import type { WsEmitter } from '../websocket';
+import type { ListMatchesQuery, MatchWithPosts } from '@nextride/shared';
 
 const CancelBodySchema = z.object({
   reason: z.string().max(500).optional(),
@@ -30,14 +31,14 @@ export function matchesRouter(
     validateQuery(ListMatchesQuerySchema),
     async (req: Request, res: Response, next: NextFunction) => {
       try {
-        const query = (req as any).parsedQuery;
+        const query = req.parsedQuery as ListMatchesQuery;
         const result = await matchService.list(query);
         res.json({
           data: result.items,
           total: result.total,
           page: query.page,
           pageSize: query.pageSize,
-        } satisfies ApiListResponse<(typeof result.items)[0]>);
+        } satisfies ApiListResponse<MatchWithPosts>);
       } catch (err) {
         next(err);
       }
@@ -90,12 +91,10 @@ export function matchesRouter(
           req.user!.id,
           req.user!.role,
         );
-        // result is Match or MatchWithPosts depending on whether both confirmed
-        const updated = result as any;
-        if (updated.status === 'confirmed') {
-          ws.emit({ type: 'match:confirmed', payload: updated });
+        if (result.status === 'confirmed') {
+          ws.emit({ type: 'match:confirmed', payload: result });
         }
-        res.json({ data: updated } satisfies ApiResponse<typeof updated>);
+        res.json({ data: result } satisfies ApiResponse<typeof result>);
       } catch (err) {
         next(err);
       }

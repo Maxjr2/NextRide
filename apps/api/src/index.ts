@@ -11,7 +11,8 @@ async function main() {
 
   // Create an HTTP server without the app first so we can attach WS
   const httpServer = http.createServer();
-  const ws = createWsServer(httpServer);
+  const ws = createWsServer(httpServer, container.services.users);
+  const { wss } = ws;
 
   // Now build the Express app (routes reference the ws emitter)
   const app = createApp(container, ws);
@@ -34,8 +35,13 @@ async function main() {
     }
   });
 
+  let isShuttingDown = false;
   const shutdown = () => {
+    if (isShuttingDown) return;
+    isShuttingDown = true;
+
     logger.info('Shutting down...');
+    wss.close?.();
     httpServer.close(() => {
       logger.info('HTTP server closed');
       process.exit(0);

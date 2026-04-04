@@ -21,7 +21,14 @@ export class FacilityService {
   }
 
   async update(id: string, data: UpdateFacilityInput): Promise<Facility> {
-    await this.getById(id); // ensure exists
-    return this.facilities.update(id, data);
+    try {
+      return await this.facilities.update(id, data);
+    } catch (err) {
+      const code = (err as { code?: string } | null)?.code;
+      if (code === 'P2025' || (err instanceof Error && err.message.includes('not found'))) {
+        throw new AppError(404, 'FACILITY_NOT_FOUND', 'Facility not found');
+      }
+      throw err;
+    }
   }
 }

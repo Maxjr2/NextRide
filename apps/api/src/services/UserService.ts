@@ -27,7 +27,14 @@ export class UserService {
   }
 
   async updateMe(id: string, data: UpdateUserInput): Promise<User> {
-    await this.getById(id); // ensure exists
-    return this.users.update(id, data);
+    try {
+      return await this.users.update(id, data);
+    } catch (err) {
+      const code = (err as { code?: string } | null)?.code;
+      if (code === 'P2025' || (err instanceof Error && err.message.includes('not found'))) {
+        throw new AppError(404, 'USER_NOT_FOUND', 'User not found');
+      }
+      throw err;
+    }
   }
 }

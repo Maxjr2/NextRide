@@ -14,9 +14,13 @@ export const MatchStatusSchema = z.enum(['proposed', 'confirmed', 'completed', '
 
 export const NotificationChannelSchema = z.enum(['email', 'sms', 'push']);
 
+const TimeOfDaySchema = z
+  .string()
+  .regex(/^([01]\d|2[0-3]):([0-5]\d)$/, 'Must be a valid time in HH:MM (00-23:00-59) format');
+
 export const TimeSlotSchema = z.object({
-  start: z.string().regex(/^\d{2}:\d{2}$/, 'Must be HH:MM format'),
-  end: z.string().regex(/^\d{2}:\d{2}$/, 'Must be HH:MM format'),
+  start: TimeOfDaySchema,
+  end: TimeOfDaySchema,
 });
 
 // ─── Pagination ───────────────────────────────────────────────────────────────
@@ -32,7 +36,7 @@ export const CreatePostSchema = z.object({
   type: PostTypeSchema,
   facilityId: z.string().uuid().optional(),
   vehicleId: z.string().uuid().optional(),
-  date: z.string().datetime().optional(),
+  date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, 'Date must be in YYYY-MM-DD format').optional(),
   timeSlot: TimeSlotSchema.optional(),
   neighborhood: z.string().min(1).max(100),
   routeWish: z.string().max(500).optional(),

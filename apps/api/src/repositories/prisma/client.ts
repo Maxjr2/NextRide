@@ -11,7 +11,7 @@ const prisma = new PrismaClient({
 
 if (process.env.LOG_LEVEL === 'debug') {
   prisma.$on('query', (e) => {
-    logger.debug({ query: e.query, params: e.params, duration: e.duration }, 'prisma query');
+    logger.debug({ query: e.query, duration: e.duration }, 'prisma query');
   });
 }
 

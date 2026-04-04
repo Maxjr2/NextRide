@@ -47,7 +47,7 @@ import {
 } from './data';
 
 // Deep-clone seed data so tests don't pollute each other
-const clone = <T>(arr: T[]): T[] => arr.map((x) => ({ ...x }));
+const clone = <T>(arr: T[]): T[] => JSON.parse(JSON.stringify(arr));
 
 // ─── Shared store ─────────────────────────────────────────────────────────────
 
@@ -112,6 +112,7 @@ export class MockUserRepository implements IUserRepository {
   }): Promise<User> {
     const existing = this.store.users.find((u) => u.externalId === claims.sub);
     if (existing) {
+      existing.role = deriveRole(claims.roles ?? []);
       existing.email = claims.email;
       existing.displayName = claims.name ?? claims.preferred_username ?? claims.email;
       existing.updatedAt = new Date();

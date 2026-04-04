@@ -1,12 +1,13 @@
 import { Router } from 'express';
 import type { Request, Response, NextFunction } from 'express';
 import { validateBody, validateQuery } from '../middleware/validate';
-import { requireAuth, requireRole } from '../middleware/auth';
+import { requireAuth } from '../middleware/auth';
 import { CreatePostSchema, UpdatePostSchema, ListPostsQuerySchema } from '@nextride/shared';
 import type { PostService } from '../services/PostService';
 import type { UserService } from '../services/UserService';
 import type { ApiResponse, ApiListResponse } from '@nextride/shared';
 import type { WsEmitter } from '../websocket';
+import { AppError } from '../middleware/AppError';
 
 export function postsRouter(
   postService: PostService,
@@ -51,7 +52,14 @@ export function postsRouter(
     validateBody(CreatePostSchema),
     async (req: Request, res: Response, next: NextFunction) => {
       try {
-        const post = await postService.create(req.user!.id, req.body);
+        if (req.body.type === 'offer' && req.user!.role !== 'pilot') {
+          throw new AppError(403, 'FORBIDDEN', 'Only pilots can create offers');
+        }
+        if (req.body.type === 'request' && req.user!.role !== 'rider' && req.user!.role !== 'facility') {
+          throw new AppError(403, 'FORBIDDEN', 'Only riders and facilities can create requests');
+        }
+
+        const post = await postService.create(req.user!.id, req.user!.role, req.body);
         ws.emit({ type: 'post:new', payload: post });
         res.status(201).json({ data: post } satisfies ApiResponse<typeof post>);
       } catch (err) {

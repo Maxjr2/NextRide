@@ -30,6 +30,8 @@ WORKDIR /app
 
 ENV NODE_ENV=production
 
+RUN addgroup -S appgroup && adduser -S appuser -G appgroup
+
 # Only production deps
 COPY package.json package.json
 COPY packages/shared/package.json packages/shared/package.json
@@ -44,6 +46,10 @@ COPY --from=builder /app/apps/api/node_modules/.prisma apps/api/node_modules/.pr
 
 # Prisma schema for migrations
 COPY apps/api/prisma apps/api/prisma
+
+RUN chown -R appuser:appgroup /app/packages/shared/dist /app/apps/api/dist /app/apps/api/node_modules/.prisma /app/apps/api/prisma
+
+USER appuser
 
 EXPOSE 3001
 
