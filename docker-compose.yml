@@ -31,6 +31,7 @@ services:
       KEYCLOAK_ADMIN: admin
       KEYCLOAK_ADMIN_PASSWORD: admin
       KC_DB: dev-mem
+      KC_HOSTNAME: keycloak
     volumes:
       - ./keycloak/realm-export.json:/opt/keycloak/data/import/realm-export.json:ro
     ports:
@@ -69,7 +70,7 @@ services:
       sh -c "
         cd apps/api &&
         npx prisma migrate deploy &&
-        node dist/repositories/prisma/seed.js &&
+        if [ \"$SEED\" = 'true' ]; then node dist/repositories/prisma/seed.js; fi &&
         node dist/index.js
       "
 
