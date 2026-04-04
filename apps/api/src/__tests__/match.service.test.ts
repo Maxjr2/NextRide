@@ -57,6 +57,17 @@ describe('MatchService', () => {
       ).rejects.toMatchObject({ status: 404, code: 'OFFER_NOT_FOUND' });
     });
 
+    it('throws 404 when request does not exist', async () => {
+      const { container } = buildTestContainer();
+      const { offer } = await createOpenPair(container);
+      await expect(
+        container.services.matches.propose('user-coord-001', {
+          offerId: offer.id,
+          requestId: 'nonexistent',
+        }),
+      ).rejects.toMatchObject({ status: 404, code: 'REQUEST_NOT_FOUND' });
+    });
+
     it('throws 400 when IDs are swapped (offer used as request)', async () => {
       const { container } = buildTestContainer();
       const { offer, request } = await createOpenPair(container);
