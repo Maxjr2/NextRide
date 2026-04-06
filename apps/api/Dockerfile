@@ -46,12 +46,12 @@ RUN npm ci --workspaces --omit=dev
 # Copy built artefacts
 COPY --from=builder /app/packages/shared/dist packages/shared/dist
 COPY --from=builder /app/apps/api/dist apps/api/dist
-COPY --from=builder /app/apps/api/node_modules/.prisma apps/api/node_modules/.prisma
+COPY --from=builder /app/node_modules/.prisma node_modules/.prisma
 
 # Prisma schema for migrations
 COPY apps/api/prisma apps/api/prisma
 
-RUN chown -R appuser:appgroup /app/packages/shared/dist /app/apps/api/dist /app/apps/api/node_modules/.prisma /app/apps/api/prisma
+RUN chown -R appuser:appgroup /app/packages/shared/dist /app/apps/api/dist /app/node_modules/.prisma /app/apps/api/prisma
 
 USER appuser
 
