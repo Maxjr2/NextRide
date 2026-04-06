@@ -4,7 +4,7 @@
 
 NextRide connects volunteer trishaw pilots with elderly and mobility-impaired riders — replacing phone trees and spreadsheets with a simple, accessibility-first web app.
 
-> **Status:** Early development — API complete, frontend in progress.
+> **Status:** Early development — API and frontend complete, hardening in progress.
 
 ---
 
@@ -423,13 +423,13 @@ See [`apps/web/.env.example`](apps/web/.env.example) for the full reference.
 docker compose -f docker-compose.mock.yml up
 ```
 
-### Full stack (Postgres + Keycloak + API)
+### Full stack (Postgres + Keycloak + API + Web)
 
 ```bash
 docker compose up
 ```
 
-This starts PostgreSQL, Keycloak, and the API. Keycloak admin UI is at http://localhost:8080 (admin / admin).
+This starts PostgreSQL, Keycloak, the API, and the web frontend. Keycloak admin UI is at http://localhost:8080 (admin / admin).
 
 ---
 

@@ -227,6 +227,7 @@ server {
 ```
 
 Get a free TLS certificate with [Let's Encrypt](https://letsencrypt.org/):
+
 ```bash
 certbot --nginx -d your-domain.org
 ```
@@ -284,11 +285,13 @@ Use this with uptime monitoring (UptimeRobot, Healthchecks.io, etc.).
 ### Logs
 
 In Docker:
+
 ```bash
 docker compose logs -f api
 ```
 
 With PM2:
+
 ```bash
 pm2 logs nextride-api
 ```
