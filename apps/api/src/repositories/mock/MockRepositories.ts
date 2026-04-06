@@ -46,8 +46,9 @@ import {
   MOCK_MATCHES,
 } from './data';
 
-// Deep-clone seed data so tests don't pollute each other
-const clone = <T>(arr: T[]): T[] => JSON.parse(JSON.stringify(arr));
+// Deep-clone seed data so tests don't pollute each other.
+// structuredClone (Node 17+) preserves Date instances, unlike JSON round-trip.
+const clone = <T>(arr: T[]): T[] => structuredClone(arr);
 
 // ─── Shared store ─────────────────────────────────────────────────────────────
 

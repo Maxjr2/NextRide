@@ -23,9 +23,9 @@ export class PrismaPostRepository implements IPostRepository {
     // Build date range filter when a date string is provided
     let dateFilter: { gte: Date; lt: Date } | undefined;
     if (date) {
-      const d = new Date(date);
-      const next = new Date(date);
-      next.setDate(next.getDate() + 1);
+      // Parse as UTC midnight to avoid DST shifts
+      const d = new Date(`${date.slice(0, 10)}T00:00:00Z`);
+      const next = new Date(d.getTime() + 24 * 60 * 60 * 1000);
       dateFilter = { gte: d, lt: next };
     }
 

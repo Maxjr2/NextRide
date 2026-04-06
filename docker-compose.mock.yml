@@ -28,3 +28,9 @@ services:
       CORS_ORIGIN: "*"
     ports:
       - "127.0.0.1:3001:3001"
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://127.0.0.1:3001/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 10s

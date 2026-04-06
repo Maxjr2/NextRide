@@ -8,7 +8,7 @@ export class PostService {
   constructor(
     private posts: IPostRepository,
     private vehicles: IVehicleRepository,
-    private notifications: INotificationService,
+    private _notifications: INotificationService,
   ) {}
 
   async list(query: ListPostsQuery): Promise<PagedResult<PostWithAuthor>> {

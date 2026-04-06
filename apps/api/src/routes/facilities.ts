@@ -5,7 +5,7 @@ import { requireAuth, requireRole } from '../middleware/auth';
 import { CreateFacilitySchema, UpdateFacilitySchema } from '@nextride/shared';
 import type { FacilityService } from '../services/FacilityService';
 import type { UserService } from '../services/UserService';
-import type { ApiResponse } from '@nextride/shared';
+import type { ApiResponse, Facility } from '@nextride/shared';
 
 export function facilitiesRouter(facilityService: FacilityService, userService: UserService): Router {
   const router = Router();
@@ -18,7 +18,7 @@ export function facilitiesRouter(facilityService: FacilityService, userService: 
   router.get('/', auth, async (req: Request, res: Response, next: NextFunction) => {
     try {
       const facilities = await facilityService.listAll();
-      res.json({ data: facilities });
+      res.json({ data: facilities } satisfies ApiResponse<Facility[]>);
     } catch (err) {
       next(err);
     }

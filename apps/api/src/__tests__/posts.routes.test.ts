@@ -1,7 +1,7 @@
 import request from 'supertest';
 import { buildTestApp, tokens } from './helpers';
 
-describe('POST /api/v1/posts', () => {
+describe('Posts routes', () => {
   it('returns 401 without auth token', async () => {
     const { app } = buildTestApp();
     const res = await request(app).get('/api/v1/posts');

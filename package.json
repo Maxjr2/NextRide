@@ -8,10 +8,13 @@
   ],
   "scripts": {
     "dev": "npm run dev --workspace=apps/api",
-    "dev:mock": "MOCK_MODE=true npm run dev --workspace=apps/api",
+    "dev:mock": "cross-env MOCK_MODE=true npm run dev --workspace=apps/api",
     "build": "npm run build --workspaces --if-present",
     "test": "npm run test --workspaces --if-present",
     "lint": "npm run lint --workspaces --if-present"
+  },
+  "devDependencies": {
+    "cross-env": "^7.0.3"
   },
   "engines": {
     "node": ">=20.0.0"

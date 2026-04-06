@@ -27,13 +27,12 @@ export class SmtpNotificationService implements INotificationService {
     }
   }
 
-  async notifyMatchProposed({ match, pilot, rider }: RideNotificationPayload): Promise<void> {
-    const date = match.offerId; // resolved by caller
+  async notifyMatchProposed({ pilot, rider }: RideNotificationPayload): Promise<void> {
     await this.send(pilot.email, 'Fahrtvermittlung vorgeschlagen', this.proposedBody(pilot, rider));
     await this.send(rider.email, 'Fahrtvermittlung vorgeschlagen', this.proposedBody(pilot, rider));
   }
 
-  async notifyMatchConfirmed({ match, pilot, rider }: RideNotificationPayload): Promise<void> {
+  async notifyMatchConfirmed({ pilot, rider }: RideNotificationPayload): Promise<void> {
     await this.send(pilot.email, 'Fahrt bestätigt! 🚲', this.confirmedBody(pilot, rider));
     await this.send(rider.email, 'Ihre Fahrt ist bestätigt! 🚲', this.confirmedBody(pilot, rider));
   }
@@ -49,7 +48,7 @@ export class SmtpNotificationService implements INotificationService {
     await this.send(rider.email, 'Fahrt abgesagt', body);
   }
 
-  async notifyRideReminder({ match, pilot, rider }: RideNotificationPayload): Promise<void> {
+  async notifyRideReminder({ pilot, rider }: RideNotificationPayload): Promise<void> {
     await this.send(pilot.email, 'Erinnerung: Fahrt morgen 🚲', this.reminderBody(pilot, rider));
     await this.send(rider.email, 'Erinnerung: Ihre Fahrt ist morgen 🚲', this.reminderBody(pilot, rider));
   }

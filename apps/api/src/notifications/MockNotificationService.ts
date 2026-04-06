@@ -2,8 +2,10 @@ import { logger } from '../config/logger';
 import type { INotificationService, RideNotificationPayload } from './INotificationService';
 
 /**
- * Mock notification service: logs to console instead of sending real messages.
- * Used in MOCK_MODE and as a safe no-op fallback when SMTP isn't configured.
+ * Mock notification service: emits structured log entries via Pino instead of
+ * sending real messages. Used in MOCK_MODE and as a safe no-op fallback when
+ * SMTP is not configured. All notification events are recorded in the
+ * application's structured logging system at info level.
  */
 export class MockNotificationService implements INotificationService {
   async notifyMatchProposed({ match, pilot, rider }: RideNotificationPayload): Promise<void> {

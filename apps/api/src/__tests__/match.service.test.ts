@@ -1,4 +1,7 @@
 import { buildTestContainer } from './helpers';
+import type { Match, MatchWithPosts } from '@nextride/shared';
+
+type MatchResult = Match | MatchWithPosts;
 
 async function createOpenPair(container: ReturnType<typeof buildTestContainer>['container']) {
   const offer = await container.services.posts.create('user-pilot-001', 'pilot', {
@@ -118,9 +121,8 @@ describe('MatchService', () => {
         'user-pilot-001',
         'pilot',
       );
-      const partialMatch = updated as import('@nextride/shared').Match;
-      expect(partialMatch.status).toBe('proposed');
-      expect(partialMatch.pilotConfirmed).toBe(true);
+      expect((updated as MatchResult).status).toBe('proposed');
+      expect((updated as MatchResult).pilotConfirmed).toBe(true);
     });
 
     it('transitions to confirmed when both sides confirm', async () => {
@@ -138,7 +140,7 @@ describe('MatchService', () => {
         'rider',
       );
 
-      expect((confirmed as any).status).toBe('confirmed');
+      expect((confirmed as MatchResult).status).toBe('confirmed');
       const updatedOffer = await container.services.posts.getById(offer.id);
       const updatedRequest = await container.services.posts.getById(request.id);
       expect(updatedOffer.status).toBe('confirmed');

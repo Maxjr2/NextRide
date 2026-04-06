@@ -6,5 +6,7 @@ export class AppError extends Error {
   ) {
     super(message);
     this.name = 'AppError';
+    // Restore prototype chain so `instanceof AppError` works after transpilation
+    Object.setPrototypeOf(this, AppError.prototype);
   }
 }

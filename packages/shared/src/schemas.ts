@@ -34,8 +34,8 @@ export const PaginationSchema = z.object({
 
 export const CreatePostSchema = z.object({
   type: PostTypeSchema,
-  facilityId: z.string().uuid().optional(),
-  vehicleId: z.string().uuid().optional(),
+  facilityId: z.string().optional(),
+  vehicleId: z.string().optional(),
   date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, 'Date must be in YYYY-MM-DD format').optional(),
   timeSlot: TimeSlotSchema.optional(),
   neighborhood: z.string().min(1).max(100),
@@ -53,14 +53,14 @@ export const ListPostsQuerySchema = PaginationSchema.extend({
   status: PostStatusSchema.optional(),
   neighborhood: z.string().optional(),
   date: z.string().optional(), // ISO date string YYYY-MM-DD
-  authorId: z.string().uuid().optional(),
+  authorId: z.string().optional(),
 });
 
 // ─── Match schemas ────────────────────────────────────────────────────────────
 
 export const CreateMatchSchema = z.object({
-  offerId: z.string().uuid(),
-  requestId: z.string().uuid(),
+  offerId: z.string(),
+  requestId: z.string(),
 });
 
 export const UpdateMatchSchema = z.object({
@@ -70,7 +70,7 @@ export const UpdateMatchSchema = z.object({
 
 export const ListMatchesQuerySchema = PaginationSchema.extend({
   status: MatchStatusSchema.optional(),
-  postId: z.string().uuid().optional(), // matches involving this post
+  postId: z.string().optional(), // matches involving this post
 });
 
 // ─── Vehicle schemas ──────────────────────────────────────────────────────────

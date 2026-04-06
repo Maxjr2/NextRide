@@ -9,18 +9,21 @@ async function setupProposedMatch(app: unknown) {
     .post('/api/v1/posts')
     .set('Authorization', `Bearer ${tokens.pilot}`)
     .send({ type: 'offer', vehicleId: 'veh-elle', neighborhood: 'Bilk', passengerCount: 1 });
+  expect(offerRes.status).toBe(201);
 
   // Create fresh request
   const reqRes = await request(appUnderTest)
     .post('/api/v1/posts')
     .set('Authorization', `Bearer ${tokens.rider}`)
     .send({ type: 'request', neighborhood: 'Bilk', passengerCount: 1 });
+  expect(reqRes.status).toBe(201);
 
   // Propose match
   const matchRes = await request(appUnderTest)
     .post('/api/v1/matches')
     .set('Authorization', `Bearer ${tokens.coordinator}`)
     .send({ offerId: offerRes.body.data.id, requestId: reqRes.body.data.id });
+  expect(matchRes.status).toBe(201);
 
   return { match: matchRes.body.data, offer: offerRes.body.data, requestPost: reqRes.body.data };
 }
