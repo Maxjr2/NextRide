@@ -1,10 +1,10 @@
-# NextRide 🚲
+# NextRide
 
 **Ride-matching platform for [Radeln ohne Alter](https://www.radelnohnealter.de/) chapters.**
 
 NextRide connects volunteer trishaw pilots with elderly and mobility-impaired riders — replacing phone trees and spreadsheets with a simple, accessibility-first web app.
 
-> **Status:** Early development — backend API complete, frontend in progress.
+> **Status:** Early development — API complete, frontend in progress.
 
 ---
 
@@ -12,6 +12,7 @@ NextRide connects volunteer trishaw pilots with elderly and mobility-impaired ri
 
 - [Quick Start (Mock Mode)](#quick-start-mock-mode)
 - [Architecture](#architecture)
+- [Frontend](#frontend)
 - [API Reference](#api-reference)
 - [Mock Mode](#mock-mode)
 - [Running with a Real Database](#running-with-a-real-database)
@@ -35,17 +36,23 @@ cd nextride
 # 2. Install dependencies
 npm install
 
-# 3. Copy env file
+# 3. Copy env files
 cp apps/api/.env.example apps/api/.env
 # Edit apps/api/.env and set MOCK_MODE=true
 
+cp apps/web/.env.example apps/web/.env
+# Edit apps/web/.env and set VITE_MOCK_MODE=true
+
 # 4. Start the API
 npm run dev:mock
+
+# 5. In a separate terminal, start the frontend
+npm run dev --workspace=apps/web
 ```
 
-The API is now running at **http://localhost:3001**.
+The API runs at **http://localhost:3001** and the frontend at **http://localhost:5173**.
 
-Test it:
+Test the API:
 ```bash
 # Health check
 curl http://localhost:3001/health
@@ -75,22 +82,30 @@ curl -X POST http://localhost:3001/api/v1/posts \
 ```text
 nextride/
 ├── apps/
-│   └── api/                   Node.js + Express + TypeScript backend
-│       ├── prisma/            Database schema (PostgreSQL via Prisma)
+│   ├── api/                   Node.js + Express + TypeScript backend
+│   │   ├── prisma/            Database schema (PostgreSQL via Prisma)
+│   │   └── src/
+│   │       ├── config/        App config, logger, DI container
+│   │       ├── middleware/    Auth (Keycloak JWT / mock), validation, errors
+│   │       ├── repositories/  Data access layer
+│   │       │   ├── interfaces.ts   Contracts (IPostRepository, etc.)
+│   │       │   ├── prisma/         Real DB implementations
+│   │       │   └── mock/           In-memory implementations
+│   │       ├── services/      Business logic (PostService, MatchService, …)
+│   │       ├── routes/        Express routers per resource
+│   │       ├── websocket/     Real-time event broadcast (ws)
+│   │       └── notifications/ Email (SMTP) + mock console logger
+│   └── web/                   React + TypeScript frontend (PWA)
 │       └── src/
-│           ├── config/        App config, logger, DI container
-│           ├── middleware/    Auth (Keycloak JWT / mock), validation, errors
-│           ├── repositories/  Data access layer
-│           │   ├── interfaces.ts   Contracts (IPostRepository, etc.)
-│           │   ├── prisma/         Real DB implementations
-│           │   └── mock/           In-memory implementations
-│           ├── services/      Business logic (PostService, MatchService, …)
-│           ├── routes/        Express routers per resource
-│           ├── websocket/     Real-time event broadcast (ws)
-│           └── notifications/ Email (SMTP) + mock console logger
+│           ├── api/           API client functions (posts, matches, vehicles, users)
+│           ├── auth/          Keycloak / mock auth context
+│           ├── components/    Shared accessible UI components
+│           ├── features/      Feature-specific components (posts, matches)
+│           ├── hooks/         Custom hooks (useWebSocket, …)
+│           └── pages/         Top-level page components
 └── packages/
     └── shared/                TypeScript types + Zod schemas
-                               (used by both API and future frontend)
+                               (used by both API and frontend)
 ```
 
 ### Key Design Decisions
@@ -100,9 +115,58 @@ nextride/
 | **Repository pattern** | Interface → Prisma impl + Mock impl | Swap infra without touching business logic; zero-infra dev mode |
 | **Mock mode** | `MOCK_MODE=true` env var | Full API usable with no DB/Keycloak — great for local dev and CI |
 | **Auth** | Keycloak (OpenID Connect, RS256 JWT) | Self-hostable, battle-tested RBAC; mock fallback for dev |
-| **Validation** | Zod schemas in `@nextride/shared` | Shared between API and future frontend; runtime + compile-time safety |
+| **Validation** | Zod schemas in `@nextride/shared` | Shared between API and frontend; runtime + compile-time safety |
 | **Real-time** | `ws` WebSocket on `/ws` | Lightweight; broadcasts typed domain events to all connected clients |
 | **Notifications** | `INotificationService` interface | SMTP in production; console logger in mock/dev — swap without code changes |
+| **Accessibility** | WCAG 2.2 AA minimum | Core product requirement, not an afterthought — see [docs/ACCESSIBILITY.md](docs/ACCESSIBILITY.md) |
+
+---
+
+## Frontend
+
+The frontend is a React 18 + TypeScript PWA using Tailwind CSS, React Query, and React Router.
+
+### Running the frontend
+
+```bash
+# Development (against a running API)
+npm run dev --workspace=apps/web
+
+# Development with mock auth (no Keycloak required)
+npm run dev:mock --workspace=apps/web
+
+# Build for production
+npm run build --workspace=apps/web
+```
+
+### Frontend features
+
+- **Fahrten** — Shared board of pilot offers and ride requests, filterable by date and neighborhood
+- **Anbieten** — Post a ride offer (pilots) or ride request (riders/facilities)
+- **Meine Fahrten** — Personal ride history with status badges
+- **Mehr** — Profile, settings, Leichte Sprache toggle, high-contrast mode
+
+### Accessibility features
+
+- WCAG 2.2 AA compliant (AAA target)
+- Keyboard-only navigation for all flows
+- Screen reader optimized (semantic HTML, ARIA landmarks, live regions)
+- Leichte Sprache (Easy Read German) toggle on all key screens
+- High-contrast mode (black/yellow theme)
+- Skip-to-content link on every page
+- Minimum 48×48dp touch targets; 56×64dp for primary actions
+
+### Frontend environment variables
+
+See [`apps/web/.env.example`](apps/web/.env.example) for the full reference.
+
+| Variable | Default | Description |
+|---|---|---|
+| `VITE_MOCK_MODE` | `false` | Skip Keycloak; auto-login as first mock user |
+| `VITE_API_URL` | `http://localhost:3001` | API base URL |
+| `VITE_KEYCLOAK_URL` | — | e.g. `http://localhost:8080` |
+| `VITE_KEYCLOAK_REALM` | `nextride` | Keycloak realm name |
+| `VITE_KEYCLOAK_CLIENT_ID` | `nextride-web` | Keycloak public client ID |
 
 ---
 
@@ -248,15 +312,19 @@ curl http://localhost:3001/api/v1/users/me \
 
 Unknown tokens auto-create a new rider user.
 
+**Frontend mock mode:**
+
+Set `VITE_MOCK_MODE=true` in `apps/web/.env`. The frontend skips Keycloak and auto-logs in as the first mock user. A "Mock" badge appears in the header.
+
 ---
 
 ## Running with a Real Database
 
 ### Prerequisites
 
+- Node.js 20+
 - PostgreSQL 16
 - Keycloak 23+ with a `nextride` realm configured
-- Node.js 20+
 
 ### Setup
 
@@ -273,8 +341,13 @@ npm run db:migrate --workspace=apps/api
 # Seed sample data
 npm run db:seed --workspace=apps/api
 
-# Start
+# Start API
 npm run dev
+
+# Start frontend (in a separate terminal)
+cp apps/web/.env.example apps/web/.env
+# Fill in VITE_KEYCLOAK_URL, etc.
+npm run dev --workspace=apps/web
 ```
 
 ### Keycloak setup
@@ -282,7 +355,7 @@ npm run dev
 Create a realm named `nextride` and assign these realm roles to users:
 `pilot` · `rider` · `facility` · `coordinator`
 
-The API derives the user's role from `realm_access.roles` in the JWT.
+The API derives the user's role from `realm_access.roles` in the JWT. The frontend uses a public client named `nextride-web` (no secret required).
 
 ---
 
@@ -300,6 +373,9 @@ npm test --workspace=apps/api -- --watch
 
 # Coverage
 npm test --workspace=apps/api -- --coverage
+
+# Frontend tests
+npm test --workspace=apps/web
 ```
 
 Tests run entirely in mock mode — no database or Keycloak required.
@@ -307,6 +383,8 @@ Tests run entirely in mock mode — no database or Keycloak required.
 ---
 
 ## Environment Variables
+
+### API (`apps/api/.env`)
 
 See [`apps/api/.env.example`](apps/api/.env.example) for the full reference.
 
@@ -320,6 +398,20 @@ See [`apps/api/.env.example`](apps/api/.env.example) for the full reference.
 | `CORS_ORIGIN` | `http://localhost:5173` | Allowed origin |
 | `SMTP_HOST` | — | Leave empty to disable email |
 | `LOG_LEVEL` | `info` | `debug` \| `info` \| `warn` \| `error` |
+| `RATE_LIMIT_WINDOW_MS` | `60000` | Rate limit window in ms |
+| `RATE_LIMIT_MAX` | `100` | Max requests per window per IP |
+
+### Frontend (`apps/web/.env`)
+
+See [`apps/web/.env.example`](apps/web/.env.example) for the full reference.
+
+| Variable | Default | Description |
+|---|---|---|
+| `VITE_MOCK_MODE` | `false` | Skip Keycloak; auto-login as mock user |
+| `VITE_API_URL` | `http://localhost:3001` | API base URL |
+| `VITE_KEYCLOAK_URL` | — | Keycloak server URL |
+| `VITE_KEYCLOAK_REALM` | `nextride` | Keycloak realm |
+| `VITE_KEYCLOAK_CLIENT_ID` | `nextride-web` | Keycloak public client ID |
 
 ---
 
@@ -343,6 +435,8 @@ This starts PostgreSQL, Keycloak, and the API. Keycloak admin UI is at http://lo
 
 ## Contributing
 
+See [docs/CONTRIBUTING.md](docs/CONTRIBUTING.md) for the full guide. In short:
+
 1. Fork the repo
 2. Create a branch: `git checkout -b feat/your-feature`
 3. Make changes — all PRs touching business logic should include tests
@@ -352,7 +446,7 @@ This starts PostgreSQL, Keycloak, and the API. Keycloak admin UI is at http://lo
 **Issue labels:**
 `a11y` · `feature` · `bug` · `good-first-issue` · `backend` · `frontend`
 
-All UI contributions must maintain WCAG 2.2 AA accessibility.
+All UI contributions must maintain WCAG 2.2 AA accessibility and include axe-core test coverage. See [docs/ACCESSIBILITY.md](docs/ACCESSIBILITY.md) for standards and tooling.
 
 ---
 
