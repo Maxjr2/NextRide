@@ -5,10 +5,11 @@ WORKDIR /app
 
 # Install all workspace deps first (better layer caching)
 COPY package.json package.json
+COPY package-lock.json package-lock.json
 COPY packages/shared/package.json packages/shared/package.json
 COPY apps/api/package.json apps/api/package.json
 
-RUN npm install --workspaces
+RUN npm ci --workspaces
 
 # Copy source
 COPY packages/shared packages/shared
@@ -36,10 +37,11 @@ RUN addgroup -S appgroup && adduser -S appuser -G appgroup
 
 # Only production deps
 COPY package.json package.json
+COPY package-lock.json package-lock.json
 COPY packages/shared/package.json packages/shared/package.json
 COPY apps/api/package.json apps/api/package.json
 
-RUN npm install --workspaces --omit=dev
+RUN npm ci --workspaces --omit=dev
 
 # Copy built artefacts
 COPY --from=builder /app/packages/shared/dist packages/shared/dist

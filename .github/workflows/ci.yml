@@ -108,12 +108,11 @@ jobs:
           path: apps/api/dist/
           retention-days: 7
 
-  # ── Docker build (on main only) ───────────────────────────────────────────────
+  # ── Docker build ─────────────────────────────────────────────────────────────
   docker:
     name: Docker build
     runs-on: ubuntu-latest
     needs: build
-    if: github.ref == 'refs/heads/main'
     steps:
       - uses: actions/checkout@v4
 
@@ -127,5 +126,6 @@ jobs:
           file: apps/api/Dockerfile
           push: false
           tags: nextride-api:${{ github.sha }}
+          build-args: DATABASE_URL=postgresql://localhost:5432/placeholder
           cache-from: type=gha
           cache-to: type=gha,mode=max
