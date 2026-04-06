@@ -2,7 +2,6 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { Modal } from '../../components/Modal';
 import { Button } from '../../components/Button';
 import { useToast } from '../../components/Toast';
-import { matchesApi } from '../../api/matches';
 import { postsApi } from '../../api/posts';
 import { fmtDate, fmtSlot } from '../../utils/format';
 import { useAuth } from '../../auth/AuthContext';

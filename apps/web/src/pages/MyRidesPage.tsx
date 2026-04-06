@@ -1,4 +1,3 @@
-import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { PostCard } from '../features/posts/PostCard';
 import { Spinner } from '../components/Spinner';
@@ -8,8 +7,6 @@ import { useAuth } from '../auth/AuthContext';
 import { postsApi } from '../api/posts';
 import { matchesApi } from '../api/matches';
 import { fmtDate, fmtSlot } from '../utils/format';
-import type { PostWithAuthor } from '@nextride/shared';
-
 interface MyRidesPageProps {
   leicht: boolean;
 }

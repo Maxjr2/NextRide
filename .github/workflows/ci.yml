@@ -25,6 +25,9 @@ jobs:
       - name: Install dependencies
         run: npm ci --workspaces
 
+      - name: Build shared package (required for downstream type checks)
+        run: npm run build --workspace=packages/shared
+
       - name: Type-check shared package
         run: npx tsc --noEmit
         working-directory: packages/shared

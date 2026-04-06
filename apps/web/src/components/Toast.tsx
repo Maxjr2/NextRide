@@ -1,4 +1,4 @@
-import { useEffect, createContext, useContext, useState, useCallback, type ReactNode } from 'react';
+import { createContext, useContext, useState, useCallback, type ReactNode } from 'react';
 import { clsx } from '../utils/clsx';
 
 type ToastType = 'success' | 'error' | 'info';
