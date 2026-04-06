@@ -1,0 +1,181 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ─── Enums ────────────────────────────────────────────────────────────────────
+
+enum UserRole {
+  pilot
+  rider
+  facility
+  coordinator
+}
+
+enum CertificationLevel {
+  basic
+  advanced
+  tandem
+}
+
+enum PostType {
+  offer
+  request
+}
+
+enum PostStatus {
+  open
+  matched
+  confirmed
+  completed
+  cancelled
+}
+
+enum MatchStatus {
+  proposed
+  confirmed
+  completed
+  cancelled
+}
+
+enum NotificationChannel {
+  email
+  sms
+  push
+}
+
+// ─── Models ───────────────────────────────────────────────────────────────────
+
+model User {
+  id                   String                @id @default(uuid())
+  externalId           String                @unique // Keycloak subject claim
+  role                 UserRole
+  displayName          String
+  email                String                @unique
+  phone                String?
+  certificationLevel   CertificationLevel?   // pilots only
+  facilityId           String?
+  notificationChannels NotificationChannel[]
+  active               Boolean               @default(true)
+  createdAt            DateTime              @default(now())
+  updatedAt            DateTime              @updatedAt
+
+  // relations
+  facility             Facility?             @relation(fields: [facilityId], references: [id])
+  vehicles             Vehicle[]
+  posts                Post[]                @relation("AuthorPosts")
+  proposedMatches      Match[]               @relation("ProposedByUser")
+  confirmedMatches     Match[]               @relation("ConfirmedByUser")
+
+  @@index([externalId])
+  @@index([role])
+  @@index([facilityId])
+}
+
+model Facility {
+  id           String    @id @default(uuid())
+  name         String
+  contactName  String
+  contactPhone String
+  contactEmail String
+  address      String?
+  active       Boolean   @default(true)
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+
+  // relations
+  users        User[]
+  posts        Post[]
+}
+
+model Vehicle {
+  id                    String             @id @default(uuid())
+  pilotId               String
+  name                  String
+  description           String?
+  capacity              Int
+  certificationRequired CertificationLevel
+  active                Boolean            @default(true)
+  createdAt             DateTime           @default(now())
+  updatedAt             DateTime           @updatedAt
+
+  // relations
+  pilot                 User               @relation(fields: [pilotId], references: [id])
+  posts                 Post[]
+
+  @@index([pilotId])
+}
+
+model Post {
+  id                 String      @id @default(uuid())
+  type               PostType
+  authorId           String
+  facilityId         String?
+  vehicleId          String?
+  date               DateTime?
+  timeSlotStart      String?     // HH:MM
+  timeSlotEnd        String?     // HH:MM
+  neighborhood       String
+  routeWish          String?
+  accessibilityNotes String?
+  passengerCount     Int         @default(1)
+  status             PostStatus  @default(open)
+  createdAt          DateTime    @default(now())
+  updatedAt          DateTime    @updatedAt
+
+  // relations
+  author             User        @relation("AuthorPosts", fields: [authorId], references: [id])
+  facility           Facility?   @relation(fields: [facilityId], references: [id])
+  vehicle            Vehicle?    @relation(fields: [vehicleId], references: [id])
+  offerMatches       Match[]     @relation("OfferPost")
+  requestMatches     Match[]     @relation("RequestPost")
+
+  @@index([type, status])
+  @@index([authorId])
+  @@index([date])
+  @@index([neighborhood])
+}
+
+model Match {
+  id                 String      @id @default(uuid())
+  offerId            String
+  requestId          String
+  proposedById       String
+  confirmedById      String?
+  pilotConfirmed     Boolean     @default(false)
+  riderConfirmed     Boolean     @default(false)
+  status             MatchStatus @default(proposed)
+  cancellationReason String?
+  createdAt          DateTime    @default(now())
+  updatedAt          DateTime    @updatedAt
+
+  // relations
+  offer              Post        @relation("OfferPost", fields: [offerId], references: [id])
+  request            Post        @relation("RequestPost", fields: [requestId], references: [id])
+  proposedBy         User        @relation("ProposedByUser", fields: [proposedById], references: [id])
+  confirmedBy        User?       @relation("ConfirmedByUser", fields: [confirmedById], references: [id])
+  rideLog            RideLog?
+
+  @@index([status])
+  @@index([offerId])
+  @@index([requestId])
+  // Partial unique indexes for active matches are created in SQL migration:
+  // offerId/requestId must be unique when status IN ('proposed','confirmed').
+}
+
+model RideLog {
+  id              String   @id @default(uuid())
+  matchId         String   @unique
+  completedAt     DateTime
+  pilotNotes      String?
+  distanceKm      Float?
+  durationMinutes Int?
+  createdAt       DateTime @default(now())
+
+  // relations
+  match           Match    @relation(fields: [matchId], references: [id])
+}

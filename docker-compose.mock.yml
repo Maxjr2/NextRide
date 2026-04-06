@@ -1,0 +1,36 @@
+##
+## NextRide — Mock mode (no DB, no Keycloak)
+## Usage: docker compose -f docker-compose.mock.yml up
+##
+## All data lives in memory and resets on restart.
+## Authenticate with any of the pre-seeded externalIds:
+##   Authorization: Bearer pilot-001
+##   Authorization: Bearer rider-001
+##   Authorization: Bearer facility-001
+##   Authorization: Bearer coord-001
+## Or use role shortcuts:
+##   Authorization: Bearer role:coordinator
+##
+
+services:
+  api:
+    build:
+      context: .
+      dockerfile: apps/api/Dockerfile
+      args:
+        DATABASE_URL: postgresql://localhost:5432/placeholder
+    restart: unless-stopped
+    environment:
+      NODE_ENV: development
+      PORT: 3001
+      MOCK_MODE: "true"
+      LOG_LEVEL: info
+      CORS_ORIGIN: "*"
+    ports:
+      - "127.0.0.1:3001:3001"
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://127.0.0.1:3001/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 10s

@@ -1,0 +1,96 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ── Atkinson Hyperlegible (dyslexia-friendly) ─────────────────────────────── */
+@import url('https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400;1,700&display=swap');
+
+/* ── Base resets ───────────────────────────────────────────────────────────── */
+@layer base {
+  *, *::before, *::after {
+    box-sizing: border-box;
+  }
+
+  html {
+    /* Prevent font scaling in landscape on iOS */
+    -webkit-text-size-adjust: 100%;
+    scroll-behavior: smooth;
+  }
+
+  body {
+    @apply bg-app text-gray-900 font-sans antialiased;
+    min-height: 100dvh;
+  }
+
+  /* Visible focus ring for keyboard navigation — never hidden */
+  :focus-visible {
+    @apply outline-2 outline-offset-2 outline-offer;
+  }
+
+  /* Remove default focus ring only when using mouse */
+  :focus:not(:focus-visible) {
+    outline: none;
+  }
+}
+
+/* ── High-contrast mode (.hc on <html>) ────────────────────────────────────── */
+@layer base {
+  html.hc {
+    --tw-bg-opacity: 1;
+
+    background-color: #000 !important;
+    color: #fff !important;
+  }
+
+  html.hc body {
+    @apply bg-black text-white;
+  }
+
+  html.hc .bg-surface,
+  html.hc .bg-app {
+    background-color: #0a0a0a !important;
+    color: #fff !important;
+  }
+
+  html.hc .bg-offer-bg  { background-color: #001a33 !important; }
+  html.hc .bg-request-bg { background-color: #331a00 !important; }
+  html.hc .bg-accent-bg { background-color: #002211 !important; }
+
+  html.hc .text-offer { color: #5cb8ff !important; }
+  html.hc .text-request { color: #ffb347 !important; }
+  html.hc .text-accent { color: #00e060 !important; }
+  html.hc .text-muted  { color: #ccc !important; }
+  html.hc .text-gray-900 { color: #fff !important; }
+  html.hc .text-gray-700 { color: #eee !important; }
+  html.hc .text-gray-600 { color: #ddd !important; }
+  html.hc .text-gray-500 { color: #ccc !important; }
+
+  html.hc .border-gray-200 { border-color: #555 !important; }
+  html.hc .border-gray-300 { border-color: #666 !important; }
+
+  html.hc :focus-visible {
+    outline-color: #ffdd00 !important;
+  }
+}
+
+/* ── Animations ────────────────────────────────────────────────────────────── */
+@keyframes fadeInDown {
+  from { opacity: 0; transform: translateY(-8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ── Scrollbar hide utility ────────────────────────────────────────────────── */
+@layer utilities {
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
+}
