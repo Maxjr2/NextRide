@@ -1,0 +1,86 @@
+site_name: NextRide
+site_description: Ride-matching platform for Radeln ohne Alter chapters
+site_url: https://maxjr2.github.io/nextride
+repo_url: https://github.com/Maxjr2/nextride
+repo_name: Maxjr2/nextride
+edit_uri: edit/main/docs/
+
+theme:
+  name: material
+  language: en
+  palette:
+    - scheme: default
+      primary: blue
+      accent: light blue
+      toggle:
+        icon: material/brightness-7
+        name: Switch to dark mode
+    - scheme: slate
+      primary: blue
+      accent: light blue
+      toggle:
+        icon: material/brightness-4
+        name: Switch to light mode
+  features:
+    - navigation.tabs
+    - navigation.tabs.sticky
+    - navigation.sections
+    - navigation.expand
+    - navigation.top
+    - navigation.footer
+    - search.highlight
+    - search.suggest
+    - content.code.copy
+    - content.code.annotate
+    - content.tabs.link
+  icon:
+    repo: fontawesome/brands/github
+
+markdown_extensions:
+  - admonition
+  - pymdownx.details
+  - pymdownx.superfences
+  - pymdownx.highlight:
+      anchor_linenums: true
+  - pymdownx.inlinehilite
+  - pymdownx.snippets
+  - pymdownx.tabbed:
+      alternate_style: true
+  - pymdownx.tasklist:
+      custom_checkbox: true
+  - tables
+  - toc:
+      permalink: true
+  - attr_list
+  - md_in_html
+
+plugins:
+  - search
+
+nav:
+  - Home: index.md
+  - Getting Started:
+    - Quick Start (Mock Mode): getting-started.md
+    - Running with a Real Database: real-database.md
+    - Running Tests: testing.md
+    - Docker: docker.md
+  - Architecture:
+    - System Overview: architecture.md
+    - Design Document: design-document.md
+  - API Reference:
+    - Overview & Auth: api-reference.md
+    - Posts: api/posts.md
+    - Matches: api/matches.md
+    - Vehicles: api/vehicles.md
+    - Users & Facilities: api/users.md
+    - WebSocket: api/websocket.md
+  - Configuration: configuration.md
+  - Deployment: DEPLOYMENT.md
+  - Accessibility: ACCESSIBILITY.md
+  - Contributing: CONTRIBUTING.md
+
+extra:
+  social:
+    - icon: fontawesome/brands/github
+      link: https://github.com/Maxjr2/nextride
+  generator: false
