@@ -46,6 +46,11 @@ COPY --from=builder /app/apps/web/dist /usr/share/nginx/html
 # Required env vars: API_HOST, API_PORT
 COPY apps/web/nginx.conf.template /etc/nginx/templates/default.conf.template
 
+# Restrict envsubst to only substitute ${API_HOST} and ${API_PORT}.
+# Without this, the nginx entrypoint would also replace nginx variables like
+# $uri, $host, $remote_addr, etc. with empty strings, breaking the config.
+ENV NGINX_ENVSUBST_TEMPLATE_VAR_LIST="API_HOST API_PORT"
+
 EXPOSE 80
 
 HEALTHCHECK --interval=30s --timeout=5s --retries=3 --start-period=5s \
