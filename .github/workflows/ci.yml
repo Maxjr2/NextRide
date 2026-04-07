@@ -60,7 +60,7 @@ jobs:
       - name: Install dependencies
         run: npm ci --workspaces
 
-      - name: Run tests with coverage
+      - name: Run API tests with coverage
         run: npm test --workspace=apps/api -- --coverage --ci
 
       - name: Upload coverage report
@@ -70,6 +70,12 @@ jobs:
           name: coverage-report
           path: apps/api/coverage/
           retention-days: 7
+
+      - name: Build shared package (required for web tests)
+        run: npm run build --workspace=packages/shared
+
+      - name: Run web tests
+        run: npm test --workspace=apps/web -- --passWithNoTests
 
   # ── Build ─────────────────────────────────────────────────────────────────────
   build:
@@ -101,11 +107,18 @@ jobs:
       - name: Build web app
         run: npm run build --workspace=apps/web
 
-      - name: Upload build artefacts
+      - name: Upload API build artefact
         uses: actions/upload-artifact@v4
         with:
           name: api-dist
           path: apps/api/dist/
+          retention-days: 7
+
+      - name: Upload web build artefact
+        uses: actions/upload-artifact@v4
+        with:
+          name: web-dist
+          path: apps/web/dist/
           retention-days: 7
 
   # ── Docker build & publish ────────────────────────────────────────────────────
@@ -130,8 +143,9 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Extract Docker metadata
-        id: meta
+      # ── API image ──────────────────────────────────────────────────────────
+      - name: Extract Docker metadata (API)
+        id: meta-api
         uses: docker/metadata-action@v5
         with:
           images: ghcr.io/${{ github.repository }}/api
@@ -139,14 +153,35 @@ jobs:
             type=sha,prefix=sha-
             type=raw,value=latest,enable=${{ github.ref == 'refs/heads/main' }}
 
-      - name: Build and push Docker image
+      - name: Build and push API image
         uses: docker/build-push-action@v5
         with:
           context: .
           file: apps/api/Dockerfile
           push: ${{ github.ref == 'refs/heads/main' }}
-          tags: ${{ steps.meta.outputs.tags }}
-          labels: ${{ steps.meta.outputs.labels }}
+          tags: ${{ steps.meta-api.outputs.tags }}
+          labels: ${{ steps.meta-api.outputs.labels }}
           build-args: DATABASE_URL=postgresql://localhost:5432/placeholder
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      # ── Web image ──────────────────────────────────────────────────────────
+      - name: Extract Docker metadata (web)
+        id: meta-web
+        uses: docker/metadata-action@v5
+        with:
+          images: ghcr.io/${{ github.repository }}/web
+          tags: |
+            type=sha,prefix=sha-
+            type=raw,value=latest,enable=${{ github.ref == 'refs/heads/main' }}
+
+      - name: Build and push web image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: apps/web/Dockerfile
+          push: ${{ github.ref == 'refs/heads/main' }}
+          tags: ${{ steps.meta-web.outputs.tags }}
+          labels: ${{ steps.meta-web.outputs.labels }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
