@@ -98,7 +98,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const login = useCallback(() => {
     if (IS_MOCK) {
-      // Already initialised from localStorage
+      const saved = localStorage.getItem('nextride:mock-token') ?? MOCK_USERS[0].externalId;
+      setToken(saved);
+      setLoading(true);
+      fetchMe();
       return;
     }
     // Production: redirect to Keycloak authorization endpoint
@@ -107,7 +110,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const clientId = import.meta.env.VITE_KEYCLOAK_CLIENT_ID;
     const redirectUri = encodeURIComponent(window.location.origin + '/auth/callback');
     window.location.href = `${keycloakUrl}/realms/${realm}/protocol/openid-connect/auth?client_id=${clientId}&redirect_uri=${redirectUri}&response_type=code&scope=openid+profile+email`;
-  }, []);
+  }, [fetchMe]);
 
   const logout = useCallback(() => {
     setToken(null);
