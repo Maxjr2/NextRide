@@ -16,6 +16,7 @@ export default defineConfig(({ mode }) => {
     },
     server: {
       port: webPort,
+      host: env.VITE_HOST || 'localhost',
       proxy: {
         '/api': {
           target: apiUrl,
