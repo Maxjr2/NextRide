@@ -5,10 +5,11 @@ WORKDIR /app
 
 # Install all workspace deps first (better layer caching)
 COPY package.json package.json
+COPY package-lock.json package-lock.json
 COPY packages/shared/package.json packages/shared/package.json
 COPY apps/api/package.json apps/api/package.json
 
-RUN npm install --workspaces
+RUN npm ci --workspaces
 
 # Copy source
 COPY packages/shared packages/shared
@@ -36,20 +37,21 @@ RUN addgroup -S appgroup && adduser -S appuser -G appgroup
 
 # Only production deps
 COPY package.json package.json
+COPY package-lock.json package-lock.json
 COPY packages/shared/package.json packages/shared/package.json
 COPY apps/api/package.json apps/api/package.json
 
-RUN npm install --workspaces --omit=dev
+RUN npm ci --workspaces --omit=dev
 
 # Copy built artefacts
 COPY --from=builder /app/packages/shared/dist packages/shared/dist
 COPY --from=builder /app/apps/api/dist apps/api/dist
-COPY --from=builder /app/apps/api/node_modules/.prisma apps/api/node_modules/.prisma
+COPY --from=builder /app/node_modules/.prisma node_modules/.prisma
 
 # Prisma schema for migrations
 COPY apps/api/prisma apps/api/prisma
 
-RUN chown -R appuser:appgroup /app/packages/shared/dist /app/apps/api/dist /app/apps/api/node_modules/.prisma /app/apps/api/prisma
+RUN chown -R appuser:appgroup /app/packages/shared/dist /app/apps/api/dist /app/node_modules/.prisma /app/apps/api/prisma
 
 USER appuser
 
