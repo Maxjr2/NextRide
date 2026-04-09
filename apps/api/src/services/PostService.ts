@@ -21,6 +21,10 @@ export class PostService {
     return post;
   }
 
+  // TODO: Add a bulk-create method so facility staff can post multiple
+  // passenger requests in a single action (e.g. "3 residents want to ride on
+  // Thursday"). The shared schema's CreatePostInput already supports
+  // passengerCount, but each resident currently needs a separate API call.
   async create(authorId: string, role: string, data: CreatePostInput): Promise<PostWithAuthor> {
     this.assertCanCreatePostType(role, data.type);
 

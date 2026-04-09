@@ -67,6 +67,15 @@ export class SmtpNotificationService implements INotificationService {
     }
   }
 
+  // TODO: Replace plain-text bodies with HTML templates (e.g. using mjml or
+  // handlebars) and send both text and html parts so email clients render
+  // a styled, accessible email with the NextRide branding.
+
+  // TODO: Add SMS delivery via a gateway adapter (e.g. Twilio) for users whose
+  // notificationChannels includes 'sms'. The User entity already stores a
+  // phone field and notificationChannels; this class just needs an SMS branch
+  // alongside the existing SMTP branch.
+
   private proposedBody(pilot: User, rider: User): string {
     return `Hallo,\n\neine Fahrtvermittlung zwischen Pilot ${pilot.displayName} und Fahrgast wurde vorgeschlagen.\n\nBitte bestätigen Sie die Fahrt in der NextRide-App.\n\nVielen Dank!\nIhr NextRide-Team`;
   }

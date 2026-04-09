@@ -33,6 +33,11 @@ export function MorePage({
         </section>
       )}
 
+      {/* TODO: Add a notification preferences section here so users can choose
+          which channels (email, SMS, push) they receive alerts on. The backend
+          already stores User.notificationChannels and the PATCH /users/me
+          endpoint accepts updates; only the UI is missing. */}
+
       {/* Accessibility */}
       <section aria-labelledby="a11y-heading" className="bg-surface rounded-card p-4 shadow-card space-y-4">
         <h2 id="a11y-heading" className="text-sm font-bold uppercase tracking-wide text-muted">
@@ -88,6 +93,10 @@ export function MorePage({
           </div>
         </section>
       )}
+
+      {/* TODO: Add a phone number field in the profile section so pilots and
+          riders can opt into SMS reminders. Pair with the notification
+          preferences UI above; POST to PATCH /api/v1/users/me with phone. */}
 
       {/* About */}
       <section aria-labelledby="about-heading" className="bg-surface rounded-card p-4 shadow-card">

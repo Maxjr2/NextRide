@@ -18,4 +18,11 @@ export interface INotificationService {
 
   /** Reminder sent the day before a scheduled ride. */
   notifyRideReminder(payload: RideNotificationPayload): Promise<void>;
+
+  // TODO: Add notifyPostExpired() for offers/requests that pass their date
+  // without being matched, so authors are prompted to repost or cancel.
+
+  // TODO: Add a push notification channel (Web Push / FCM) and wire it into
+  // implementations alongside email and SMS. The User.notificationChannels
+  // field already reserves a 'push' value for this purpose.
 }

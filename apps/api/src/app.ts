@@ -31,6 +31,9 @@ export function createApp(container: Container, ws: WsEmitter): express.Applicat
   );
 
   // ── Rate limiting ───────────────────────────────────────────────────────────
+  // TODO: Add per-user rate limiting after authentication to prevent a single
+  // authenticated user from consuming the global quota. Consider using a Redis
+  // store (e.g. rate-limit-redis) so limits persist across multiple API replicas.
   app.use(
     rateLimit({
       windowMs: config.rateLimit.windowMs,
@@ -45,6 +48,10 @@ export function createApp(container: Container, ws: WsEmitter): express.Applicat
 
   // ── Body parsing ────────────────────────────────────────────────────────────
   app.use(express.json({ limit: '1mb' }));
+
+  // TODO: Propagate a unique request ID (e.g. via express-request-id) through
+  // pino-http so that all log lines within a single request share the same
+  // requestId field, making distributed tracing significantly easier.
 
   // ── Health check (unauthenticated) ──────────────────────────────────────────
   app.get('/health', (_req, res) => {

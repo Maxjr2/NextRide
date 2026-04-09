@@ -26,6 +26,10 @@ export class UserService {
     return this.users.upsertFromToken(claims);
   }
 
+  // TODO: Expose a coordinator-only endpoint to deactivate a user account.
+  // MockUserRepository.deactivate() and IUserRepository already define the
+  // contract; it just needs a route + service method wired up.
+
   async updateMe(id: string, data: UpdateUserInput): Promise<User> {
     try {
       return await this.users.update(id, data);
