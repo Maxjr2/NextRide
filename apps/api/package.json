@@ -24,7 +24,7 @@
     "helmet": "^7.2.0",
     "jsonwebtoken": "^9.0.3",
     "jwks-rsa": "^3.2.2",
-    "nodemailer": "^7.0.13",
+    "nodemailer": "^8.0.5",
     "pino": "^8.21.0",
     "pino-http": "^9.0.0",
     "uuid": "^9.0.1",
