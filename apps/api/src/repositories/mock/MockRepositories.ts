@@ -384,6 +384,10 @@ export class MockRideLogRepository implements IRideLogRepository {
     return this.store.rideLogs.find((r) => r.matchId === matchId) ?? null;
   }
 
+  // TODO: Add listByPilot(pilotId) and aggregate helpers (total distance,
+  // total rides) so the frontend can display ride statistics on the
+  // "Meine Fahrten" page and the coordinator dashboard.
+
   async create(data: CreateRideLogInput): Promise<RideLog> {
     const log: RideLog = {
       id: uuidv4(),

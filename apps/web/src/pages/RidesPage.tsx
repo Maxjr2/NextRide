@@ -61,6 +61,10 @@ export function RidesPage({ leicht }: RidesPageProps) {
           />
         )}
 
+        {/* TODO: Add pagination controls (or infinite scroll) when
+            data.total > pageSize. Currently hard-capped at 50 results,
+            which may hide older open posts as the board grows. */}
+
         {data?.data.map((post) => (
           <PostCard
             key={post.id}

@@ -44,6 +44,10 @@ export class MatchService {
     if (offer.status !== 'open') throw new AppError(409, 'OFFER_NOT_OPEN', 'Offer is not open');
     if (request.status !== 'open') throw new AppError(409, 'REQUEST_NOT_OPEN', 'Request is not open');
 
+    // TODO: Wrap match creation and post status updates in a single database
+    // transaction once the Prisma repository is used, to eliminate the
+    // manual compensation logic below. The mock repository cannot use
+    // transactions, so this pattern is kept for compatibility with both.
     let match = await this.matches.create(proposedById, data);
     try {
       await Promise.all([
@@ -197,6 +201,16 @@ export class MatchService {
       this.posts.updateStatus(match.offerId, 'completed'),
       this.posts.updateStatus(match.requestId, 'completed'),
     ]);
+
+    // TODO: Write a RideLog entry here (distance, duration, pilot notes) so
+    // completed rides are recorded for statistics and chapter reporting.
+    // The IRideLogRepository interface and MockRideLogRepository are already in
+    // place; this service just needs to accept and persist the ride log data.
+
+    // TODO: Schedule a ride-reminder notification 24 hours before the
+    // scheduled date. notifyRideReminder() is defined on INotificationService
+    // but is never called. Consider a lightweight job queue (e.g. BullMQ) or
+    // a cron that queries for confirmed matches with date = tomorrow.
 
     return completed;
   }

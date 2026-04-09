@@ -20,6 +20,9 @@ export function MyRidesPage({ leicht }: MyRidesPageProps) {
     enabled: !!user,
   });
 
+  // TODO: Replace the `as any` cast with a properly typed ListMatchesQuery once
+  // the shared schema exposes a participantId filter, so this query fetches
+  // only matches where the current user is a pilot or rider.
   const { data: matchesData, isLoading: matchesLoading } = useQuery({
     queryKey: ['matches', 'mine'],
     queryFn: () => matchesApi.list({ pageSize: 50 } as any),
@@ -62,6 +65,12 @@ export function MyRidesPage({ leicht }: MyRidesPageProps) {
               ))
             )}
           </section>
+
+          {/* TODO: Add a "Completed rides" section below the active matches
+              that shows historical RideLog entries (distance, date, partner).
+              The IRideLogRepository and MockRideLogRepository are already in
+              place on the backend; a GET /api/v1/rides/log endpoint and a
+              corresponding frontend API call are needed. */}
 
           {/* Matches */}
           {myMatches.length > 0 && (
